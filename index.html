@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Global Theme */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            background: #0a192f;
+        }
+
+        /* Section Styling */
+        section {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                        transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        
+        section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Page transition overlay */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Smooth animations for content */
+        .section-content {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #fff;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 25, 47, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-dark .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #6610f2;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: #fff;
+            background: rgba(102, 16, 242, 0.1);
+        }
+
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: #fff;
+            background: rgba(102, 16, 242, 0.2);
+        }
+
+        .navbar-dark .navbar-nav .nav-link.active::after {
+            width: 80%;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: #fff !important;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .navbar-brand:hover {
+            color: #6610f2 !important;
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: #fff;
+            position: relative;
+            z-index: 100;
+        }
+
+        /* Base Section Resets */
+        html, body {
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Card animations */
+        .card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        section.active .card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        
+        section.active .card:nth-child(1) { transition-delay: 0.2s; }
+        section.active .card:nth-child(2) { transition-delay: 0.4s; }
+        section.active .card:nth-child(3) { transition-delay: 0.6s; }
+
+        /* Hero section specific styles */
+        .hero-content {
+            position: relative;
+            z-index: 5;
+            text-align: left;
+            color: #fff;
+        }
+
+        .hero-text h1 {
+            color: #fff;
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards 1s;
+        }
+
+        .hero-text .name {
+            color: #6610f2;
+            font-weight: bold;
+        }
+
+        .hero-text p {
+            color: #8892b0;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards 1.2s;
+        }
+
+        /* Block Animation styles */
+        .block-animation {
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* About section specific */
+        .about-content {
+            position: relative;
+            z-index: 5;
+            background: rgba(22, 42, 74, 0.7);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        section.active .about-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .about-text .lead {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            color: #8892b0;
+        }
+
+        .about-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 2rem;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .detail-item:nth-child(1) { transition-delay: 0.6s; }
+        .detail-item:nth-child(2) { transition-delay: 0.8s; }
+        .detail-item:nth-child(3) { transition-delay: 1.0s; }
+        .detail-item:nth-child(4) { transition-delay: 1.2s; }
+
+        section.active .detail-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .detail-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(102, 16, 242, 0.5);
+        }
+
+        .detail-item h3 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item p {
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .about-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* NEW COOL BACKGROUNDS WITH CSS GRADIENTS */
+        .section-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        /* Hero Background */
+        #hero .section-background {
+            background: linear-gradient(135deg, #0a192f 0%, #162a4a 100%);
+        }
+        #hero .section-background::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 15% 50%, rgba(102, 16, 242, 0.25), transparent 50%),
+                        radial-gradient(circle at 85% 30%, rgba(25, 118, 210, 0.25), transparent 50%);
+            z-index: 2;
+        }
+
+        /* About Background */
+        #about .section-background {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        }
+        #about .section-background::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 80% 80%, rgba(102, 16, 242, 0.15), transparent 40%);
+        }
+
+        /* Projects Background */
+        #projects .section-background {
+            background: linear-gradient(to right, #141e30, #243b55);
+        }
+        #projects .section-background::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);
+        }
+
+        /* Skills Background */
+        #skills .section-background {
+            background: linear-gradient(135deg, #234876 0%, #1a365d 100%);
+        }
+        
+        #skills h2 {
+            color: #fff;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        #skills .list-unstyled li {
+            color: #8892b0;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #skills .list-unstyled li:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Contact Background */
+        #contact .section-background {
+            background: linear-gradient(135deg, #1e1366 0%, #0a192f 100%);
+        }
+        
+        #contact .section-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+        }
+
+        #contact .bi {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation Dots */
+        .section-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .dot.active {
+            background: #fff;
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* General text visibility */
+        h1, h2, h3, h4, h5, h6 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        p {
+            color: #8892b0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <!-- ID added to correctly identify brand in JS -->
+            <a class="navbar-brand" id="brand-link">My Portfolio</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-transition"></div>
+
+    <!-- Navigation dots -->
+    <div class="section-dots">
+        <div class="dot active" data-section="hero"></div>
+        <div class="dot" data-section="about"></div>
+        <div class="dot" data-section="projects"></div>
+        <div class="dot" data-section="skills"></div>
+        <div class="dot" data-section="contact"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="section-background"></div>
+        <div class="section-content">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Hi, my<br>name is <span class="name">Chaitanya</span>.</h1>
+                    <p>I'm an independent creative developer from India.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-background"></div>
+        <div class="section-content">
+            <div class="about-content">
+                <div class="about-text block-animation">
+                    <h2 class="mb-4">About Me</h2>
+                    <p class="lead mb-4">A passionate student developer from Indore, India, currently in Class 12th and preparing for ZCO.</p>
+                    
+                    <div class="about-details">
+                        <div class="detail-item education">
+                            <h3>Education</h3>
+                            <p>Class 12th student with a focus on competitive programming and technical excellence.</p>
+                        </div>
+                        
+                        <div class="detail-item technical">
+                            <h3>Technical Skills</h3>
+                            <p>Proficient in DSA, competitive programming, and modern design tools like Blender and Canva.</p>
+                        </div>
+
+                        <div class="detail-item creative">
+                            <h3>Creative Skills</h3>
+                            <p>Experienced in Webflow and Canva, creating visually appealing and functional designs.</p>
+                        </div>
+
+                        <div class="detail-item innovation">
+                            <h3>Innovation</h3>
+                            <p>Skilled in AI tools and emerging technologies, combining traditional programming with modern AI capabilities.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="section-background"></div>
+        <div class="section-content">
+            <div class="container text-center">
+                <h2>Projects</h2>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Project 1</h5>
+                                <p class="card-text">A web-based app for task management built using HTML, CSS, and JavaScript.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Project 2</h5>
+                                <p class="card-text">A Python-based data visualization tool for tracking fitness metrics.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Project 3</h5>
+                                <p class="card-text">An e-commerce platform prototype built using Bootstrap and Django.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills">
+        <div class="section-background"></div>
+        <div class="section-content">
+            <div class="container text-center">
+                <h2>Skills</h2>
+                <ul class="list-unstyled mt-4">
+                    <li>✔️ Proficient in C++ and Python</li>
+                    <li>✔️ Web Development: HTML, CSS, JavaScript</li>
+                    <li>✔️ Frameworks: Bootstrap, React, Django</li>
+                    <li>✔️ Problem Solving and Data Structures</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="section-background"></div>
+        <div class="section-content">
+            <div class="contact-content">
+                <h2 class="text-center mb-4">Connect with Me</h2>
+                <p class="lead text-center mb-5">Let's collaborate and create something amazing together!</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <i class="bi bi-linkedin display-4 mb-3"></i>
+                                <h5 class="card-title">LinkedIn</h5>
+                                <a href="https://www.linkedin.com/in/chaitanya-mehta-a19918423/" class="btn btn-outline-light mt-auto" target="_blank">Visit Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <i class="bi bi-medium display-4 mb-3"></i>
+                                <h5 class="card-title">Medium</h5>
+                                <a href="#" class="btn btn-outline-light mt-auto" target="_blank">Visit Blog</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <i class="bi bi-instagram display-4 mb-3"></i>
+                                <h5 class="card-title">Instagram</h5>
+                                <a href="#" class="btn btn-outline-light mt-auto" target="_blank">Visit Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-3">
+        <p>&copy; 2026 My Portfolio | All Rights Reserved</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('section');
+            const dots = document.querySelectorAll('.dot');
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const brandLink = document.getElementById('brand-link');
+            
+            let currentSection = 0;
+            let isScrolling = false;
+            let lastScrollTime = Date.now();
+            let scrollTimeout;
+
+            // Initialize first section
+            window.scrollTo(0, 0);
+            sections[0].classList.add('active');
+
+            function updateNavigation(index) {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+
+                navLinks.forEach((link, i) => {
+                    // Minus 1 because navLinks skips the Hero section
+                    link.classList.toggle('active', i === index - 1);
+                });
+            }
+
+            function scrollToSection(index) {
+                if (isScrolling || index === currentSection) return;
+                
+                isScrolling = true;
+                lastScrollTime = Date.now();
+                
+                sections.forEach(section => section.classList.remove('active'));
+                sections[index].classList.add('active');
+                
+                sections[index].scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                updateNavigation(index);
+                currentSection = index;
+                
+                if (scrollTimeout) {
+                    clearTimeout(scrollTimeout);
+                }
+                
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                }, 1000); 
+            }
+
+            // Click events to dots
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    scrollToSection(index);
+                });
+            });
+
+            // Click events to navbar links (+1 to account for skipping Hero in the navlist)
+            navLinks.forEach((link, index) => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    scrollToSection(index + 1); 
+                });
+            });
+
+            // Click event for the brand link to return to Hero
+            brandLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                scrollToSection(0);
+            });
+
+            // Wheel event handler
+            document.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (isScrolling || Date.now() - lastScrollTime < 1000) return;
+                
+                const delta = Math.sign(e.deltaY);
+                const newSection = delta > 0 
+                    ? Math.min(currentSection + 1, sections.length - 1)
+                    : Math.max(currentSection - 1, 0);
+                    
+                if (newSection !== currentSection) {
+                    scrollToSection(newSection);
+                }
+            }, { passive: false });
+
+            // Touch support
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            let touchMoved = false;
+            
+            document.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+                touchStartTime = Date.now();
+                touchMoved = false;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touchEndY = e.touches[0].clientY;
+                const diff = touchStartY - touchEndY;
+                const timeDiff = Date.now() - touchStartTime;
+                
+                if (!touchMoved && Math.abs(diff) > 50 && timeDiff > 100) {
+                    handleScroll(diff > 0 ? 'down' : 'up');
+                    touchMoved = true;
+                }
+            }, { passive: false });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (isScrolling) return;
+                switch(e.key) {
+                    case 'ArrowDown':
+                    case 'PageDown':
+                        handleScroll('down');
+                        break;
+                    case 'ArrowUp':
+                    case 'PageUp':
+                        handleScroll('up');
+                        break;
+                }
+            });
+
+            function handleScroll(direction) {
+                const now = Date.now();
+                if (isScrolling || now - lastScrollTime < 1000) return;
+                
+                const newSection = direction === 'down' 
+                    ? Math.min(currentSection + 1, sections.length - 1)
+                    : Math.max(currentSection - 1, 0);
+                    
+                if (newSection !== currentSection) {
+                    scrollToSection(newSection);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
